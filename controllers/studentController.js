@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const bcrypt = require('bcryptjs');
 const asyncHandler = require('express-async-handler');
 const { getProjects } = require('./projectController');
 
@@ -12,18 +13,35 @@ const createStudent = asyncHandler(async (req, res) => {
 
     if (!name || !email || !password) {
         res.status(400);
-        throw new Error('Please include all fields');
+        throw new Error('Please add all fields');
     }
 
-    const studentExists = await User.findOne({ email, role: 'student' });
-    if (studentExists) {
+    // Check if user exists
+    const userExists = await User.findOne({ email });
+
+    if (userExists) {
         res.status(400);
-        throw new Error('Student already exists');
+        throw new Error('User already exists');
     }
 
-    const student = await User.create({ name, email, password, role: 'student' });
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    res.redirect('/admin/students');
+    // Create user
+    const user = await User.create({
+        name,
+        email,
+        password: hashedPassword,
+        role: 'student'
+    });
+
+    if (user) {
+        res.redirect('/admin/students')
+    } else {
+        res.status(400);
+        throw new Error('Invalid user data');
+    }
 });
 
 /**

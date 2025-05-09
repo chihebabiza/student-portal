@@ -23,10 +23,10 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(authRoutes);
-app.use(announcementRoutes);
 app.use(projectsRoutes);
 app.use(studentRoutes);
 app.use('/admin', adminRoutes);
+app.use(announcementRoutes);
 
 
 app.use(errorHandler);

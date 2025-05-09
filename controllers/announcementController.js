@@ -86,10 +86,24 @@ const deleteAnnouncement = asyncHandler(async (req, res) => {
     res.redirect('/admin/announcements');
 });
 
+/**
+ * @desc    404 page
+ * @route   GET /*
+ * @access  Public
+ */
+const get404Page = asyncHandler(async (req, res) => {
+    res.render('404', {
+        title: '404',
+        user: req.user || null
+    });
+});
+
+
 module.exports = {
     getAnnouncements,
     getAnnouncementsPage,
     createAnnouncement,
     updateAnnouncement,
-    deleteAnnouncement
+    deleteAnnouncement,
+    get404Page,
 };
