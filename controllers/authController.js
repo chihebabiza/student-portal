@@ -9,10 +9,15 @@ const User = require('../models/userModel');
  * @access  Public
  */
 const getLogin = asyncHandler(async (req, res) => {
-    res.render('login', {
-        title: 'Login - UniPortal',
-        error: req.query.error
-    });
+    try {
+        res.render('login', {
+            title: 'Login - UniPortal',
+            error: req.query.error
+        });
+    } catch (error) {
+        console.error('Error rendering login page:', error);
+        res.status(500).render('error', { message: 'Failed to load login page' });
+    }
 });
 
 /**
@@ -21,27 +26,34 @@ const getLogin = asyncHandler(async (req, res) => {
  * @access  Public
  */
 const loginUser = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+        if (!email || !password) {
+            return res.redirect('/login?error=Please+enter+email+and+password');
+        }
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-        const token = generateToken(user._id);
+        const user = await User.findOne({ email });
 
-        res.cookie('token', token, {
-            httpOnly: true,
-            sameSite: 'strict',
-            secure: process.env.NODE_ENV === 'production', // Only secure in production
-            maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-        });
+        if (user && (await bcrypt.compare(password, user.password))) {
+            const token = generateToken(user._id);
 
-        // Redirect based on role
-        return user.role === 'admin'
-            ? res.redirect('/admin/dashboard')
-            : res.redirect('/student/dashboard');
-    } else {
-        res.status(400);
-        throw new Error('Invalid credentials');
+            res.cookie('token', token, {
+                httpOnly: true,
+                sameSite: 'strict',
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+            });
+
+            return user.role === 'admin'
+                ? res.redirect('/admin/dashboard')
+                : res.redirect('/student/dashboard');
+        } else {
+            return res.redirect('/login?error=Invalid+email+or+password');
+        }
+    } catch (error) {
+        console.error('Error logging in user:', error);
+        res.redirect('/login?error=Something+went+wrong');
     }
 });
 
@@ -51,12 +63,17 @@ const loginUser = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const logoutUser = asyncHandler(async (req, res) => {
-    res.cookie('token', '', {
-        httpOnly: true,
-        expires: new Date(0)
-    });
+    try {
+        res.cookie('token', '', {
+            httpOnly: true,
+            expires: new Date(0)
+        });
 
-    res.redirect('/');
+        res.redirect('/login?success=Logged+out+successfully');
+    } catch (error) {
+        console.error('Error logging out user:', error);
+        res.redirect('/?error=Failed+to+logout');
+    }
 });
 
 /**

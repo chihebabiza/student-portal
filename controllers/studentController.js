@@ -1,5 +1,6 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
+const Wishlist = require('../models/wishlistModel');
 const asyncHandler = require('express-async-handler');
 const { getProjects } = require('./projectController');
 
@@ -12,16 +13,15 @@ const createStudent = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-        res.status(400);
-        throw new Error('Please add all fields');
+        // Redirect back with error in query param
+        return res.redirect('/admin/students?error=Please add all fields');
     }
 
     // Check if user exists
     const userExists = await User.findOne({ email });
 
     if (userExists) {
-        res.status(400);
-        throw new Error('User already exists');
+        return res.redirect('/admin/students?error=User already exists');
     }
 
     // Hash password
@@ -37,10 +37,9 @@ const createStudent = asyncHandler(async (req, res) => {
     });
 
     if (user) {
-        res.redirect('/admin/students')
+        return res.redirect('/admin/students?success=Student created successfully');
     } else {
-        res.status(400);
-        throw new Error('Invalid user data');
+        return res.redirect('/admin/students?error=Invalid user data');
     }
 });
 
@@ -95,10 +94,13 @@ const deleteStudent = asyncHandler(async (req, res) => {
 const getDashboard = asyncHandler(async (req, res) => {
     const projects = await getProjects();
 
+    const wishlist = await Wishlist.findOne({ student: req.user._id }).populate('projects');
+
     res.render('student/studentProjects', {
         title: 'Student Projects',
         projects,
         user: req.user,
+        wishlist: wishlist || { projects: [] },  
     });
 });
 

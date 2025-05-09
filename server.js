@@ -1,5 +1,4 @@
 const express = require('express');
-const { errorHandler } = require('./middleware/errorMiddleware');
 const connectDB = require('./config/db');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes.js');
@@ -28,7 +27,5 @@ app.use(studentRoutes);
 app.use('/admin', adminRoutes);
 app.use(announcementRoutes);
 
-
-app.use(errorHandler);
 
 app.listen(port, () => console.log(`Server started on port ${port}`));

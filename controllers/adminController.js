@@ -24,7 +24,9 @@ const adminDashboard = asyncHandler(async (req, res) => {
             title: 'Admin Dashboard',
             announcements,
             stats: { announcementsCount, projectsCount, studentsCount },
-            user: req.user
+            user: req.user,
+            success: req.query.success,
+            error: req.query.error
         });
     } catch (error) {
         console.error('Error loading dashboard:', error);
@@ -44,7 +46,9 @@ const adminAnnouncements = asyncHandler(async (req, res) => {
         res.render('admin/adminAnnouncements', {
             title: 'Manage Announcements',
             announcements,
-            user: req.user
+            user: req.user,
+            success: req.query.success,
+            error: req.query.error
         });
     } catch (error) {
         console.error('Error loading announcements:', error);
@@ -64,7 +68,9 @@ const adminProjects = asyncHandler(async (req, res) => {
         res.render('admin/adminProjects', {
             title: 'Manage Projects',
             projects,
-            user: req.user
+            user: req.user,
+            success: req.query.success,
+            error: req.query.error
         });
     } catch (error) {
         console.error('Error loading projects:', error);
@@ -86,7 +92,9 @@ const adminStudents = asyncHandler(async (req, res) => {
         res.render('admin/adminStudents', {
             title: 'Manage Students',
             students,
-            user: req.user
+            user: req.user,
+            success: req.query.success,
+            error: req.query.error
         });
     } catch (error) {
         console.error('Error loading students:', error);
@@ -121,7 +129,9 @@ const viewStudentWishlist = asyncHandler(async (req, res) => {
             title: `${student.name}'s Wishlist`,
             wishlist: wishlist || { projects: [] },
             student,
-            user: req.user
+            user: req.user,
+            success: req.query.success,
+            error: req.query.error
         });
     } catch (error) {
         console.error('View student wishlist error:', error);
