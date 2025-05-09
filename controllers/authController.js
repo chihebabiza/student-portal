@@ -42,7 +42,7 @@ const loginUser = asyncHandler(async (req, res) => {
                 httpOnly: true,
                 sameSite: 'strict',
                 secure: process.env.NODE_ENV === 'production',
-                maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+                maxAge: 30 * 24 * 60 * 60 * 1000 
             });
 
             return user.role === 'admin'
@@ -69,7 +69,7 @@ const logoutUser = asyncHandler(async (req, res) => {
             expires: new Date(0)
         });
 
-        res.redirect('/login?success=Logged+out+successfully');
+        res.redirect('/?success=Logged+out+successfully');
     } catch (error) {
         console.error('Error logging out user:', error);
         res.redirect('/?error=Failed+to+logout');

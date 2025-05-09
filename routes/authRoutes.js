@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect, checkRole } = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 const { loginUser, logoutUser, getLogin } = require('../controllers/authController');
 
 // Public routes

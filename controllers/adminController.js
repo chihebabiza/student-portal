@@ -122,7 +122,7 @@ const viewStudentWishlist = asyncHandler(async (req, res) => {
         const wishlist = await Wishlist.findOne({ student: studentId })
             .populate({
                 path: 'projects',
-                select: 'title description createdAt' // Only populate fields that exist in schema
+                select: 'title description createdAt' 
             });
 
         res.render('admin/studentWishlist', {
