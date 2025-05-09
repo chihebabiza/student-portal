@@ -8,12 +8,6 @@
         <div class="flex justify-between items-center mb-8">
             <div>
                 <h1 class="text-3xl font-bold"><%= title %></h1>
-                <p class="text-gray-600 mt-1"><%= student.email %></p>
-                <% if (wishlist.submittedAt) { %>
-                    <p class="text-sm text-green-600 mt-1">
-                        Submitted on: <%= wishlist.submittedAt.toLocaleDateString() %>
-                    </p>
-                <% } %>
             </div>
             <a href="/admin/students" class="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
                 <i class="fas fa-arrow-left mr-2"></i>Back to Students
