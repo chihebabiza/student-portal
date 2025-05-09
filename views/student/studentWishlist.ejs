@@ -6,9 +6,11 @@
     <main class="container mx-auto px-4 py-8">
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-bold">My Project Wishlist</h1>
-            <button onclick="openAddProjectsModal()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                <i class="fas fa-plus mr-2"></i>Add Projects
-            </button>
+            <% if (wishlist && wishlist.projects.length > 0) { %>
+                <button onclick="confirmClear()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                    <i class="fas fa-trash mr-2"></i>Clear Wishlist
+                </button>
+            <% } %>
         </div>
 
         <% if (wishlist && wishlist.projects.length > 0) { %>
@@ -40,65 +42,14 @@
                     </tbody>
                 </table>
             </div>
-            
-            <div class="mt-6 flex justify-end">
-                <button onclick="confirmSubmit()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                    <i class="fas fa-paper-plane mr-2"></i>Submit Wishlist
-                </button>
-            </div>
         <% } else { %>
             <div class="bg-white rounded-lg shadow p-8 text-center">
                 <i class="fas fa-heart text-4xl text-gray-400 mb-4"></i>
                 <h2 class="text-xl font-semibold text-gray-700">Your wishlist is empty</h2>
-                <p class="text-gray-500 mt-2">Add projects to your wishlist using the button above</p>
+                <p class="text-gray-500 mt-2">Browse projects to add them to your wishlist</p>
             </div>
         <% } %>
     </main>
-
-    <!-- Add Projects Modal -->
-    <div id="add-projects-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden flex flex-col">
-            <div class="p-6">
-                <h2 class="text-xl font-bold mb-4">Add Projects to Wishlist</h2>
-                <div class="mb-4">
-                    <input type="text" id="project-search" placeholder="Search projects..." 
-                           class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-            </div>
-            
-            <div class="overflow-y-auto flex-grow px-6">
-                <% if (availableProjects && availableProjects.length > 0) { %>
-                    <div class="grid gap-4 mb-6">
-                        <% availableProjects.forEach(project => { %>
-                        <div class="border rounded-lg p-4 flex justify-between items-center">
-                            <div>
-                                <h3 class="font-medium"><%= project.title %></h3>
-                                <p class="text-sm text-gray-500 mt-1"><%= project.description %></p>
-                            </div>
-                            <button onclick="addToWishlist('<%= project._id %>')" 
-                                    class="px-3 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200">
-                                <i class="fas fa-plus mr-1"></i> Add
-                            </button>
-                        </div>
-                        <% }) %>
-                    </div>
-                <% } else { %>
-                    <div class="text-center py-8 text-gray-500">
-                        No available projects found
-                    </div>
-                <% } %>
-            </div>
-            
-            <div class="p-6 border-t">
-                <div class="flex justify-end">
-                    <button onclick="closeAddProjectsModal()" 
-                            class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
-                        Close
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Remove Confirmation Modal -->
     <div id="remove-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
@@ -110,63 +61,39 @@
                         class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
                     Cancel
                 </button>
-                <a id="confirm-remove" href="#"
+                <button id="confirm-remove" onclick="removeFromWishlist()"
                    class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
                     Remove
-                </a>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Submit Confirmation Modal -->
-    <div id="submit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <!-- Clear Confirmation Modal -->
+    <div id="clear-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6">
-            <h2 class="text-xl font-bold mb-4">Submit Wishlist</h2>
-            <p class="mb-6">Once submitted, you won't be able to modify your wishlist. Are you sure?</p>
+            <h2 class="text-xl font-bold mb-4">Confirm Clear Wishlist</h2>
+            <p class="mb-6">Are you sure you want to clear your entire wishlist? This action cannot be undone.</p>
             <div class="flex justify-end space-x-3">
-                <button onclick="closeSubmitModal()" 
+                <button onclick="closeClearModal()" 
                         class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
                     Cancel
                 </button>
-                <a id="confirm-submit" href="/student/wishlist/submit"
-                   class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                    Submit
-                </a>
+                <button onclick="clearWishlist()"
+                   class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                    Clear Wishlist
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // Add Projects Modal
-        function openAddProjectsModal() {
-            document.getElementById('add-projects-modal').classList.remove('hidden');
-        }
-
-        function closeAddProjectsModal() {
-            document.getElementById('add-projects-modal').classList.add('hidden');
-        }
-
-        function addToWishlist(projectId) {
-            fetch('/student/wishlist/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ projectId: projectId }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.reload();
-                } else {
-                    alert('Error adding project to wishlist');
-                }
-            });
-        }
+        // Global variables to store project ID for removal
+        let currentProjectToRemove = null;
 
         // Remove Project Modal
         function confirmRemove(projectId) {
-            document.getElementById('confirm-remove').href = `/student/wishlist/remove/${projectId}`;
+            currentProjectToRemove = projectId;
             document.getElementById('remove-modal').classList.remove('hidden');
         }
 
@@ -174,31 +101,63 @@
             document.getElementById('remove-modal').classList.add('hidden');
         }
 
-        // Submit Wishlist Modal
-        function confirmSubmit() {
-            document.getElementById('submit-modal').classList.remove('hidden');
+        function removeFromWishlist() {
+    if (!currentProjectToRemove) return;
+    
+    fetch(`/student/wishlist/remove/${currentProjectToRemove}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'include' // Important for sessions
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw err; });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message || 'Failed to remove project');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.message || 'Error removing project');
+    })
+    .finally(() => {
+        closeRemoveModal();
+    });
+}
+        // Clear Wishlist Modal
+        function confirmClear() {
+            document.getElementById('clear-modal').classList.remove('hidden');
         }
 
-        function closeSubmitModal() {
-            document.getElementById('submit-modal').classList.add('hidden');
+        function closeClearModal() {
+            document.getElementById('clear-modal').classList.add('hidden');
         }
 
-        // Project search functionality
-        document.getElementById('project-search').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const projectCards = document.querySelectorAll('#add-projects-modal .grid > div');
-            
-            projectCards.forEach(card => {
-                const title = card.querySelector('h3').textContent.toLowerCase();
-                const description = card.querySelector('p').textContent.toLowerCase();
-                
-                if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                    card.style.display = 'flex';
+        function clearWishlist() {
+            fetch('/student/wishlist/clear', {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
                 } else {
-                    card.style.display = 'none';
+                    alert('Error clearing wishlist');
                 }
+            })
+            .finally(() => {
+                closeClearModal();
             });
-        });
+        }
     </script>
 </body>
 </html>
