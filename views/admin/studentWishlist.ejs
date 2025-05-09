@@ -1,0 +1,58 @@
+<%- include('../partials/head') %>
+
+<body class="bg-gray-50">
+    <%- include('adminNav') %>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold"><%= title %></h1>
+                <p class="text-gray-600 mt-1"><%= student.email %></p>
+                <% if (wishlist.submittedAt) { %>
+                    <p class="text-sm text-green-600 mt-1">
+                        Submitted on: <%= wishlist.submittedAt.toLocaleDateString() %>
+                    </p>
+                <% } %>
+            </div>
+            <a href="/admin/students" class="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Students
+            </a>
+        </div>
+
+        <% if (wishlist && wishlist.projects.length > 0) { %>
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Title</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Added</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <% wishlist.projects.forEach(project => { %>
+                        <tr>
+                            <td class="px-6 py-4">
+                                <div class="font-medium text-gray-900"><%= project.title %></div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-gray-500 text-sm mt-1 line-clamp-2"><%= project.description %></div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-gray-500 text-sm"><%= project.createdAt.toLocaleDateString() %></div>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div class="bg-white rounded-lg shadow p-8 text-center">
+                <i class="fas fa-heart text-4xl text-gray-400 mb-4"></i>
+                <h2 class="text-xl font-semibold text-gray-700">No projects in wishlist</h2>
+                <p class="text-gray-500 mt-2">This student hasn't added any projects to their wishlist yet</p>
+            </div>
+        <% } %>
+    </main>
+</body>
+</html>

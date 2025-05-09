@@ -3,19 +3,6 @@ const asyncHandler = require('express-async-handler');
 const { getProjects } = require('./projectController');
 
 /**
- * @desc    Get all students
- * @route   GET /admin/students
- * @access  Private/Admin
- */
-const getStudents = asyncHandler(async (req, res) => {
-    const students = await User.find({ role: 'student' })
-        .select('-password')
-        .sort('-createdAt');
-
-    res.status(200).json(students);
-});
-
-/**
  * @desc    Create a student
  * @route   POST /admin/students
  * @access  Private/Admin
@@ -36,13 +23,7 @@ const createStudent = asyncHandler(async (req, res) => {
 
     const student = await User.create({ name, email, password, role: 'student' });
 
-    res.status(201).json({
-        _id: student._id,
-        name: student.name,
-        email: student.email,
-        role: student.role,
-        createdAt: student.createdAt,
-    });
+    res.redirect('/admin/students');
 });
 
 /**
@@ -68,7 +49,7 @@ const updateStudent = asyncHandler(async (req, res) => {
         { new: true }
     ).select('-password');
 
-    res.status(200).json(updatedStudent);
+    res.redirect('/admin/students');
 });
 
 /**
@@ -85,10 +66,7 @@ const deleteStudent = asyncHandler(async (req, res) => {
 
     await student.remove();
 
-    res.status(200).json({
-        success: true,
-        message: 'Student removed',
-    });
+    res.redirect('/admin/students');
 });
 
 /**
@@ -107,7 +85,6 @@ const getDashboard = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-    getStudents,
     createStudent,
     updateStudent,
     deleteStudent,

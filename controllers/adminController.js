@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const Announcement = require('../models/announcementModel');
 const User = require('../models/userModel');
 const Project = require('../models/projectModel');
+const Wishlist = require('../models/wishlistModel');
 const { getAnnouncements } = require('./announcementController');
 const { getProjects } = require('./projectController');
 
@@ -93,9 +94,48 @@ const adminStudents = asyncHandler(async (req, res) => {
     }
 });
 
+/**
+ * @desc    Render student wishlist
+ * @route   GET /admin/wishlist/:id
+ * @access  Private/Admin
+ */
+const viewStudentWishlist = asyncHandler(async (req, res) => {
+    try {
+        const studentId = req.params.id;
+        const student = await User.findById(studentId).select('name email');
+
+        if (!student) {
+            return res.status(404).render('error', {
+                title: 'Error',
+                message: 'Student not found'
+            });
+        }
+
+        const wishlist = await Wishlist.findOne({ student: studentId })
+            .populate({
+                path: 'projects',
+                select: 'title description createdAt' // Only populate fields that exist in schema
+            });
+
+        res.render('admin/studentWishlist', {
+            title: `${student.name}'s Wishlist`,
+            wishlist: wishlist || { projects: [] },
+            student,
+            user: req.user
+        });
+    } catch (error) {
+        console.error('View student wishlist error:', error);
+        res.status(500).render('error', {
+            title: 'Error',
+            message: 'Failed to load wishlist'
+        });
+    }
+});
+
 module.exports = {
     adminDashboard,
     adminAnnouncements,
     adminProjects,
-    adminStudents
+    adminStudents,
+    viewStudentWishlist
 };
