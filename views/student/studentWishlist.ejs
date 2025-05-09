@@ -1,0 +1,204 @@
+<%- include('../partials/head') %>
+
+<body class="bg-gray-50">
+    <%- include('studentNav') %>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold">My Project Wishlist</h1>
+            <button onclick="openAddProjectsModal()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                <i class="fas fa-plus mr-2"></i>Add Projects
+            </button>
+        </div>
+
+        <% if (wishlist && wishlist.projects.length > 0) { %>
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <% wishlist.projects.forEach(project => { %>
+                        <tr>
+                            <td class="px-6 py-4">
+                                <div class="font-medium text-gray-900"><%= project.title %></div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-gray-500 text-sm mt-1 line-clamp-2"><%= project.description %></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button onclick="confirmRemove('<%= project._id %>')" class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-6 flex justify-end">
+                <button onclick="confirmSubmit()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                    <i class="fas fa-paper-plane mr-2"></i>Submit Wishlist
+                </button>
+            </div>
+        <% } else { %>
+            <div class="bg-white rounded-lg shadow p-8 text-center">
+                <i class="fas fa-heart text-4xl text-gray-400 mb-4"></i>
+                <h2 class="text-xl font-semibold text-gray-700">Your wishlist is empty</h2>
+                <p class="text-gray-500 mt-2">Add projects to your wishlist using the button above</p>
+            </div>
+        <% } %>
+    </main>
+
+    <!-- Add Projects Modal -->
+    <div id="add-projects-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden flex flex-col">
+            <div class="p-6">
+                <h2 class="text-xl font-bold mb-4">Add Projects to Wishlist</h2>
+                <div class="mb-4">
+                    <input type="text" id="project-search" placeholder="Search projects..." 
+                           class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            
+            <div class="overflow-y-auto flex-grow px-6">
+                <% if (availableProjects && availableProjects.length > 0) { %>
+                    <div class="grid gap-4 mb-6">
+                        <% availableProjects.forEach(project => { %>
+                        <div class="border rounded-lg p-4 flex justify-between items-center">
+                            <div>
+                                <h3 class="font-medium"><%= project.title %></h3>
+                                <p class="text-sm text-gray-500 mt-1"><%= project.description %></p>
+                            </div>
+                            <button onclick="addToWishlist('<%= project._id %>')" 
+                                    class="px-3 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200">
+                                <i class="fas fa-plus mr-1"></i> Add
+                            </button>
+                        </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-8 text-gray-500">
+                        No available projects found
+                    </div>
+                <% } %>
+            </div>
+            
+            <div class="p-6 border-t">
+                <div class="flex justify-end">
+                    <button onclick="closeAddProjectsModal()" 
+                            class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remove Confirmation Modal -->
+    <div id="remove-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6">
+            <h2 class="text-xl font-bold mb-4">Confirm Removal</h2>
+            <p class="mb-6">Are you sure you want to remove this project from your wishlist?</p>
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeRemoveModal()" 
+                        class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
+                    Cancel
+                </button>
+                <a id="confirm-remove" href="#"
+                   class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                    Remove
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Confirmation Modal -->
+    <div id="submit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6">
+            <h2 class="text-xl font-bold mb-4">Submit Wishlist</h2>
+            <p class="mb-6">Once submitted, you won't be able to modify your wishlist. Are you sure?</p>
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeSubmitModal()" 
+                        class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
+                    Cancel
+                </button>
+                <a id="confirm-submit" href="/student/wishlist/submit"
+                   class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                    Submit
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add Projects Modal
+        function openAddProjectsModal() {
+            document.getElementById('add-projects-modal').classList.remove('hidden');
+        }
+
+        function closeAddProjectsModal() {
+            document.getElementById('add-projects-modal').classList.add('hidden');
+        }
+
+        function addToWishlist(projectId) {
+            fetch('/student/wishlist/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ projectId: projectId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Error adding project to wishlist');
+                }
+            });
+        }
+
+        // Remove Project Modal
+        function confirmRemove(projectId) {
+            document.getElementById('confirm-remove').href = `/student/wishlist/remove/${projectId}`;
+            document.getElementById('remove-modal').classList.remove('hidden');
+        }
+
+        function closeRemoveModal() {
+            document.getElementById('remove-modal').classList.add('hidden');
+        }
+
+        // Submit Wishlist Modal
+        function confirmSubmit() {
+            document.getElementById('submit-modal').classList.remove('hidden');
+        }
+
+        function closeSubmitModal() {
+            document.getElementById('submit-modal').classList.add('hidden');
+        }
+
+        // Project search functionality
+        document.getElementById('project-search').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const projectCards = document.querySelectorAll('#add-projects-modal .grid > div');
+            
+            projectCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const description = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

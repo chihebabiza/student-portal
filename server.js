@@ -1,9 +1,12 @@
 const express = require('express');
 const { errorHandler } = require('./middleware/errorMiddleware');
 const connectDB = require('./config/db');
+const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes.js');
 const announcementRoutes = require('./routes/announcementRoutes.js');
-const cookieParser = require('cookie-parser');
+const projectsRoutes = require('./routes/projectRoutes.js');
+const adminRoutes = require('./routes/adminRoutes.js');
+const studentRoutes = require('./routes/studentRoutes.js');
 const port = process.env.PORT || 3000;
 const path = require('path');
 
@@ -19,10 +22,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// app.use('/api/goals', require('./routes/goalRoutes'));
-// app.use('/', require('./routes/userRoutes'));
 app.use(authRoutes);
 app.use(announcementRoutes);
+app.use(projectsRoutes);
+app.use(studentRoutes);
+app.use('/admin', adminRoutes);
 
 
 app.use(errorHandler);
