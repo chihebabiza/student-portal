@@ -1,41 +1,39 @@
 const Announcement = require('../models/announcementModel');
 const asyncHandler = require('express-async-handler');
 
-// @desc    Get all announcements (Reusable function)
-// @access  Public
+/**
+ * @desc    Reusable function — get all announcements (optional filter)
+ * @access  Public
+ */
 const getAnnouncements = async (filter = {}) => {
     return await Announcement.find(filter).sort('-datetime');
 };
 
-// @desc    Get announcements page (SSR)
-// @route   GET /announcements
-// @access  Public
+/**
+ * @desc    Render announcements page (SSR)
+ * @route   GET /announcements
+ * @access  Public
+ */
 const getAnnouncementsPage = asyncHandler(async (req, res) => {
-    try {
-        const { filter } = req.query;
-        const allowedFilters = ['general', 'computer_science', 'math', 'physics', 'chemistry'];
-        const query = filter && allowedFilters.includes(filter) ? { display: filter } : {};
+    const { filter } = req.query;
+    const allowedFilters = ['general', 'computer_science', 'math', 'physics', 'chemistry'];
 
-        const announcements = await getAnnouncements(query);
+    const query = filter && allowedFilters.includes(filter) ? { display: filter } : {};
+    const announcements = await getAnnouncements(query);
 
-        res.render('index', {
-            title: 'Announcements',
-            announcements,
-            filter: filter,
-            user: req.user || null
-        });
-    } catch (error) {
-        console.error('Announcements page error:', error);
-        res.status(500).render('error', {
-            title: 'Error',
-            message: 'Failed to load announcements'
-        });
-    }
+    res.render('index', {
+        title: 'Announcements',
+        announcements,
+        filter,
+        user: req.user || null
+    });
 });
 
-// @desc    Create new announcement
-// @route   POST /api/announcements
-// @access  Private/Admin
+/**
+ * @desc    Create new announcement
+ * @route   POST /announcements/admin
+ * @access  Private/Admin
+ */
 const createAnnouncement = asyncHandler(async (req, res) => {
     const { title, content, display } = req.body;
 
@@ -44,19 +42,21 @@ const createAnnouncement = asyncHandler(async (req, res) => {
         throw new Error('Please include all fields');
     }
 
-    const announcement = await Announcement.create({
+    await Announcement.create({
         title,
         content,
         display,
         datetime: new Date()
     });
 
-    res.redirect('/admin/dashboard');
+    res.redirect('/admin/announcements');
 });
 
-// @desc    Update announcement
-// @route   PUT /api/announcements/:id
-// @access  Private/Admin
+/**
+ * @desc    Update announcement
+ * @route   POST /announcements/admin/:id
+ * @access  Private/Admin
+ */
 const updateAnnouncement = asyncHandler(async (req, res) => {
     const announcement = await Announcement.findById(req.params.id);
 
@@ -65,18 +65,15 @@ const updateAnnouncement = asyncHandler(async (req, res) => {
         throw new Error('Announcement not found');
     }
 
-    const updatedAnnouncement = await Announcement.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true }
-    );
-
-    res.redirect('/admin/dashboard');
+    await Announcement.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.redirect('/admin/announcements');
 });
 
-// @desc    Delete announcement
-// @route   DELETE /api/announcements/:id
-// @access  Private/Admin
+/**
+ * @desc    Delete announcement
+ * @route   GET /announcements/admin/delete/:id
+ * @access  Private/Admin
+ */
 const deleteAnnouncement = asyncHandler(async (req, res) => {
     const announcement = await Announcement.findById(req.params.id);
 
@@ -86,13 +83,13 @@ const deleteAnnouncement = asyncHandler(async (req, res) => {
     }
 
     await announcement.remove();
-    res.redirect('/admin/dashboard');
+    res.redirect('/admin/announcements');
 });
 
 module.exports = {
     getAnnouncements,
+    getAnnouncementsPage,
     createAnnouncement,
     updateAnnouncement,
-    deleteAnnouncement,
-    getAnnouncementsPage,
+    deleteAnnouncement
 };
