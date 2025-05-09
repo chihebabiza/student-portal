@@ -1,0 +1,119 @@
+<%- include('../partials/head') %>
+
+  <body class="bg-gray-50">
+    <%- include('adminNav') %>
+
+    <main class="container mx-auto px-4 py-8">
+      <h1 class="text-3xl font-bold mb-8">Admin Dashboard</h1>
+
+      <!-- Statistics Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Announcements Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-500">Total Announcements</p>
+              <h2 class="text-3xl font-bold">
+                <%= stats.announcementsCount %>
+              </h2>
+            </div>
+            <div class="bg-blue-100 p-3 rounded-full">
+              <i class="fas fa-bullhorn text-blue-600 text-xl"></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <a
+              href="/admin/announcements"
+              class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              View All <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Projects Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-500">Total Projects</p>
+              <h2 class="text-3xl font-bold"><%= stats.projectsCount %></h2>
+            </div>
+            <div class="bg-green-100 p-3 rounded-full">
+              <i class="fas fa-project-diagram text-green-600 text-xl"></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <a
+              href="/admin/projects"
+              class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              View All <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Students Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-500">Registered Students</p>
+              <h2 class="text-3xl font-bold"><%= stats.studentsCount %></h2>
+            </div>
+            <div class="bg-purple-100 p-3 rounded-full">
+              <i class="fas fa-users text-purple-600 text-xl"></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <a
+              href="/admin/students"
+              class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              View All <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity Section -->
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b">
+          <h2 class="text-xl font-semibold">Recent Announcements</h2>
+        </div>
+        <div class="divide-y divide-gray-200">
+          <% announcements.slice(0, 5).forEach(announcement => { %>
+          <div class="px-6 py-4 hover:bg-gray-50">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-medium text-gray-900">
+                  <%= announcement.title %>
+                </h3>
+                <p class="text-gray-500 text-sm mt-1">
+                  <%= announcement.content.substring(0, 100) %>...
+                </p>
+              </div>
+              <span
+                class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
+              >
+                <%= announcement.display.replace('_', ' ') %>
+              </span>
+            </div>
+            <div class="mt-2 text-sm text-gray-500">
+              <i class="far fa-calendar-alt mr-1"></i>
+              <%= announcement.datetime.toLocaleDateString() %>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+        <div class="px-6 py-4 bg-gray-50 text-right">
+          <a
+            href="/admin/announcements"
+            class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+          >
+            View All Announcements <i class="fas fa-arrow-right ml-1"></i>
+          </a>
+        </div>
+      </div>
+    </main>
+    <%- include('../partials/footer') %>
+  </body>
+</html>

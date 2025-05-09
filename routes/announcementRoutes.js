@@ -12,8 +12,8 @@ const {
 router.get('/', getAnnouncementsPage);
 
 // Protected admin routes
-router.post('/create', protect, checkRole('admin'), createAnnouncement);
-router.put('/:id', protect, checkRole('admin'), updateAnnouncement);
-router.delete('/:id', protect, checkRole('admin'), deleteAnnouncement);
-
+router.post('/admin/announcements', protect, checkRole('admin'), createAnnouncement);
+router.post('/admin/announcements/:id', protect, checkRole('admin'), updateAnnouncement);
+router.get('/admin/announcements/delete/:id', protect, checkRole('admin'), deleteAnnouncement);
+//  /admin/announcements/681d4114eeaf0605c1675916
 module.exports = router;

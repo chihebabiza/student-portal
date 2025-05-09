@@ -33,26 +33,6 @@ const getAnnouncementsPage = asyncHandler(async (req, res) => {
     }
 });
 
-// @desc    Create new announcement (SSR form)
-// @route   GET /announcements/new
-// @access  Private/Admin
-const getNewAnnouncementPage = (req, res) => {
-    res.render('announcements/new', {
-        title: 'Create Announcement',
-        user: req.user
-    });
-};
-
-// @desc    Create new announcement (SSR form)
-// @route   GET /announcements/new
-// @access  Private/Admin
-const getUpdateAnnouncementPage = (req, res) => {
-    res.render('announcements/new', {
-        title: 'Update Announcement',
-        user: req.user
-    });
-};
-
 // @desc    Create new announcement
 // @route   POST /api/announcements
 // @access  Private/Admin
@@ -71,7 +51,7 @@ const createAnnouncement = asyncHandler(async (req, res) => {
         datetime: new Date()
     });
 
-    res.status(201).json(announcement);
+    res.redirect('/admin/dashboard');
 });
 
 // @desc    Update announcement
@@ -91,7 +71,7 @@ const updateAnnouncement = asyncHandler(async (req, res) => {
         { new: true }
     );
 
-    res.status(200).json(updatedAnnouncement);
+    res.redirect('/admin/dashboard');
 });
 
 // @desc    Delete announcement
@@ -106,7 +86,7 @@ const deleteAnnouncement = asyncHandler(async (req, res) => {
     }
 
     await announcement.remove();
-    res.status(200).json({ success: true });
+    res.redirect('/admin/dashboard');
 });
 
 module.exports = {
@@ -114,7 +94,5 @@ module.exports = {
     createAnnouncement,
     updateAnnouncement,
     deleteAnnouncement,
-    getNewAnnouncementPage,
-    getUpdateAnnouncementPage,
     getAnnouncementsPage,
 };
