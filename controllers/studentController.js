@@ -12,11 +12,6 @@ const { getProjects } = require('./projectController');
 const createStudent = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-        // Redirect back with error in query param
-        return res.redirect('/admin/students?error=Please add all fields');
-    }
-
     // Check if user exists
     const userExists = await User.findOne({ email });
 
@@ -60,13 +55,18 @@ const updateStudent = asyncHandler(async (req, res) => {
         throw new Error('Cannot change student role through this endpoint');
     }
 
+    const updateData = { ...req.body, role: 'student' };
+    if (!req.body.password || req.body.password.trim() === '') {
+        delete updateData.password;
+    }
+
     const updatedStudent = await User.findByIdAndUpdate(
         req.params.id,
-        { ...req.body, role: 'student' },
+        updateData,
         { new: true }
     ).select('-password');
 
-    res.redirect('/admin/students');
+    res.redirect('/admin/students/?success=Student updated successfully');
 });
 
 /**
@@ -83,7 +83,7 @@ const deleteStudent = asyncHandler(async (req, res) => {
 
     await student.remove();
 
-    res.redirect('/admin/students');
+    res.redirect('/admin/students/?success=Student deleted successfully');
 });
 
 /**

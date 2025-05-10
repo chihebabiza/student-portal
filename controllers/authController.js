@@ -35,22 +35,22 @@ const loginUser = asyncHandler(async (req, res) => {
 
         const user = await User.findOne({ email });
 
-        if (user && (await bcrypt.compare(password, user.password))) {
-            const token = generateToken(user._id);
-
-            res.cookie('token', token, {
-                httpOnly: true,
-                sameSite: 'strict',
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: 30 * 24 * 60 * 60 * 1000 
-            });
-
-            return user.role === 'admin'
-                ? res.redirect('/admin/dashboard')
-                : res.redirect('/student/dashboard');
-        } else {
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.redirect('/login?error=Invalid+email+or+password');
         }
+
+        const token = generateToken(user._id);
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 30 * 24 * 60 * 60 * 1000 
+        });
+
+        return user.role === 'admin'
+            ? res.redirect('/admin/dashboard?success=Logged+in+successfully')
+            : res.redirect('/student/dashboard?success=Logged+in+successfully');
     } catch (error) {
         console.error('Error logging in user:', error);
         res.redirect('/login?error=Something+went+wrong');
